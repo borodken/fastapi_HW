@@ -51,9 +51,9 @@ async def get_products_by_category(db: Annotated[AsyncSession, Depends(get_db)],
 
 @router.get("/detail/{product_slug}")
 async def product_detail(db: Annotated[AsyncSession, Depends(get_db)], product_slug: str):
-    product = await db.scalar(select(Product).where(Product.slug == product_slug
-                                                    & Product.is_active == True
-                                                    & Product.stock > 0))
+    product = await db.scalar(select(Product).where((Product.slug == product_slug)
+                                                    & Product.is_active
+                                                    & (Product.stock > 0)))
 
     if not product:
         raise HTTPException(
