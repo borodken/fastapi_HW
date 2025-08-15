@@ -16,5 +16,6 @@ class Product(Base):
     rating = Column(Float)
     is_active = Column(Boolean, default=True)
     category_id = Column(Integer, ForeignKey("categories.id"))
+    supplier_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     category = relationship("Category", back_populates="products")
