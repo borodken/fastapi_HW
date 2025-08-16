@@ -4,3 +4,4 @@
 /app/migrations/
 /*.pyc
 /__pycache__/
+pycache/
