@@ -16,7 +16,8 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBasic()
 
 
-async def get_current_username(db: Annotated[AsyncSession, Depends(get_db)], credentials: HTTPBasicCredentials = Depends(security)):
+async def get_current_username(db: Annotated[AsyncSession, Depends(get_db)],
+                               credentials: HTTPBasicCredentials = Depends(security)):
     user = await db.scalar(select(User).where(User.username == credentials.username))
 
     if not user or not bcrypt_context.verify(credentials.password, user.hashed_password):
@@ -31,7 +32,7 @@ async def read_current_user(user: str = Depends(get_current_username)):
 
 
 @router.post("/")
-async def create_user(create_user: CreateUser, db: AsyncSession = Depends(get_db)):
+async def create_user(create_user: CreateUser, db: Annotated[AsyncSession, Depends(get_db)]):
     await db.execute(insert(User).values(
         first_name=create_user.first_name,
         last_name=create_user.last_name,
