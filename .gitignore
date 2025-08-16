@@ -2,6 +2,6 @@
 /.idea/
 /.gigaide/
 /app/migrations/
-/*.pyc
-/__pycache__/
-pycache/
+*.pyc
+__pycache__/
+

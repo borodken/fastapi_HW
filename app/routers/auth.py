@@ -10,9 +10,28 @@ from passlib.context import CryptContext
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+from datetime import datetime, timedelta
+from jose import jwt
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+
+
+SECRET_KEY = 'a21679097c1ba42e9bd06eea239cdc5bf19b249e87698625cba5e3572f005544'
+ALGORITHM = 'HS256'
+
+
+async def create_access_token(username: str, user_id: int, is_admin: bool, is_supplier: bool,
+                              is_customer: bool, expires_delta: timedelta):
+    encode = {"sub": username, "user_id": user_id, "is_admin": is_admin, "is_supplier": is_supplier,
+              is_customer: is_customer}
+
+    expires = datetime.now() + expires_delta
+
+    encode.update({"exp": expires})
+
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 async def authenticate_user(db: Annotated[AsyncSession, Depends(get_db)], username: str, password: str):
@@ -38,8 +57,11 @@ async def login(db: Annotated[AsyncSession, Depends(get_db)], form_data: Annotat
             detail="Could not validate user"
         )
 
+    token = await create_access_token(user.username, user.id, user.is_admin, user.is_supplier,
+                                      user.is_customer, expires_delta=timedelta(minutes=20))
+
     return {
-        "access_token": user.username,
+        "access_token": token,
         "token_type": "bearer"
     }
 
